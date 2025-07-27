@@ -50,7 +50,12 @@ class Parser {
 
     regExp.allMatches(svgMuscle).forEach((muscleData) {
       final id = muscleData.group(1)!;
-      final title = muscleData.group(2)!;
+      // convert mapID to group name (chest1 -> chest)
+      String title = muscleData.group(2)!;
+      final group = muscleGroups.entries.firstWhereOrNull((entry) => entry.value.contains(id));
+      if (group != null) {
+        title = group.key;
+      }
       final path = parseSvgPath(muscleData.group(3)!);
 
       sizeController.addBounds(path.getBounds());
@@ -59,11 +64,10 @@ class Parser {
 
       muscleList.add(muscle);
 
-      final group = muscleGroups.entries.firstWhereOrNull((entry) => entry.value.contains(id));
       if (group != null) {
         for (var groupId in group.value) {
           if (groupId != id) {
-            final groupMuscle = Muscle(id: groupId, title: title, path: path);
+            final groupMuscle = Muscle(id: groupId, title: group.key, path: path);
             muscleList.add(groupMuscle);
           }
         }
